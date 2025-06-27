@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Synced YouTube Player (Fullscreen)</title>
+  <title>Fullscreen Synced YouTube Player</title>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #000;
       height: 100%;
+      background: black;
       overflow: hidden;
     }
+
     #player {
-      position: fixed;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    iframe {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
       border: none;
-      z-index: 999;
     }
   </style>
 </head>
@@ -28,7 +38,7 @@
 
   <script>
     let player;
-    const socket = io("https://your-server-url.com"); // replace with real server
+    const socket = io("https://your-server-url.com"); // Replace with real backend
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
@@ -38,7 +48,8 @@
           mute: 0,
           controls: 1,
           rel: 0,
-          modestbranding: 1
+          modestbranding: 1,
+          playsinline: 1
         },
         events: {
           'onStateChange': onPlayerStateChange
