@@ -1,30 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>YouTube Video Embed</title>
+  <title>Synced YouTube Player (Fullscreen)</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     html, body {
       margin: 0;
+      padding: 0;
       background-color: #000;
       height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      overflow: hidden;
     }
-    iframe {
-      width: 100%;
-      max-width: 1920px;
-      height: 1080px;
+    #player {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       border: none;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
-  <iframe
-    src="https://www.youtube.com/embed/Z2AXD8wpkA4?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1"
-    allow="autoplay; encrypted-media"
-    allowfullscreen>
-  </iframe>
+  <div id="player"></div>
+
+  <script>
+    let player;
+    const socket = io("https://your-server-url.com"); // replace with real server
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: 'Z2AXD8wpkA4',
+        playerVars: {
+          autoplay: 1,
+          mute: 0,
+          controls: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        socket.emit("video-control", { action: "play" });
+      } else if (event.data === YT.PlayerState.PAUSED) {
+        socket.emit("video-control", { action: "pause" });
+      }
+    }
+
+    socket.on("video-control", ({ action }) => {
+      if (action === "play") player.playVideo();
+      if (action === "pause") player.pauseVideo();
+    });
+  </script>
 </body>
 </html>
